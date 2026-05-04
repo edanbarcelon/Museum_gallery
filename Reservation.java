@@ -9,7 +9,7 @@ public class Reservation {
     private int pax;
     private String status;
     private LocalDateTime exitTime;
-
+    private String paymentStatus;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
 
     // Private constructor – only Builder can create instances
@@ -21,6 +21,7 @@ public class Reservation {
         this.pax = builder.pax;
         this.status = builder.status;
         this.exitTime = builder.exitTime;
+        this.paymentStatus = builder.paymentStatus;
     }
 
     // Getters and setters (all mutable for simplicity)
@@ -31,6 +32,7 @@ public class Reservation {
     public int getPax() { return pax; }
     public String getStatus() { return status; }
     public LocalDateTime getExitTime() { return exitTime; }
+    public String getPaymentStatus() { return paymentStatus; }
 
     public void setBookingId(String bookingId) { this.bookingId = bookingId; }
     public void setGuestName(String guestName) { this.guestName = guestName; }
@@ -39,6 +41,7 @@ public class Reservation {
     public void setPax(int pax) { this.pax = pax; }
     public void setStatus(String status) { this.status = status; }
     public void setExitTime(LocalDateTime exitTime) { this.exitTime = exitTime; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 
     @Override
     public String toString() {
@@ -48,6 +51,7 @@ public class Reservation {
                "\nVisit: " + (visitDateTime != null ? visitDateTime.format(formatter) : "N/A") +
                "\nPax: " + pax +
                "\nStatus: " + status;
+               "\nPayment: " + paymentStatus;
     }
 
     // Builder class
@@ -59,6 +63,7 @@ public class Reservation {
         private int pax;
         private String status = "Pending";
         private LocalDateTime exitTime = null;
+        private String paymentStatus = "Pending";
 
         public Builder bookingId(String bookingId) {
             this.bookingId = bookingId;
@@ -94,6 +99,9 @@ public class Reservation {
             this.exitTime = exitTime;
             return this;
         }
+        public Builder paymentStatus(String paymentStatus) {   
+            this.paymentStatus = paymentStatus;
+            return this; }
 
         public Reservation build() {
             if (bookingId == null || bookingId.isEmpty()) {
