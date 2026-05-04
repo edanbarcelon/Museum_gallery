@@ -13,7 +13,8 @@ public class Main {
             System.out.println("[5] Record Departure");
             System.out.println("[6] Monitor Capacity");
             System.out.println("[7] Cancel Ticket");
-            System.out.println("[8] Exit");
+            System.out.println("[8] View Income Statement");
+            System.out.println("[9] Exit");
             System.out.print("\nEnter your choice: ");
             String choice = scanner.nextLine().trim();
             switch (choice) {
@@ -24,7 +25,8 @@ public class Main {
                 case "5": ReservationSystem.recordDeparture(); break;
                 case "6": ReservationSystem.monitorCapacity(); break;
                 case "7": ReservationSystem.cancelTicket(); break;
-                case "8": System.out.println("Exiting system. Goodbye!"); return;
+                case "8": ReservationSystem.viewIncomeStatement(); break;
+                case "9": System.out.println("Exiting system. Goodbye!"); return;
                 default: System.out.println("Invalid option. Try again.");
             }
         }
