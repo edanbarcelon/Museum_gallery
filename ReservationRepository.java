@@ -8,7 +8,7 @@ public class ReservationRepository {
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public void save(Reservation res) {
-        String sql = "INSERT INTO reservations (booking_id, guest_name, contact_number, visit_datetime, pax, status, exit_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO reservations (booking_id, guest_name, contact_number, visit_datetime, pax, status, exit_time, payment_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, res.getBookingId());
@@ -18,10 +18,9 @@ public class ReservationRepository {
             pstmt.setInt(5, res.getPax());
             pstmt.setString(6, res.getStatus());
             pstmt.setString(7, res.getExitTime() != null ? res.getExitTime().format(dtf) : null);
+            pstmt.setString(8, res.getPaymentStatus());
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public Reservation findById(String bookingId) {
@@ -30,12 +29,8 @@ public class ReservationRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, bookingId);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return mapRowToReservation(rs);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            if (rs.next()) return mapRow(rs);
+        } catch (SQLException e) { e.printStackTrace(); }
         return null;
     }
 
@@ -46,12 +41,8 @@ public class ReservationRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "%" + guestName + "%");
             ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                list.add(mapRowToReservation(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
         return list;
     }
 
@@ -61,40 +52,22 @@ public class ReservationRepository {
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                list.add(mapRowToReservation(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            while (rs.next()) list.add(mapRow(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
         return list;
     }
 
+    // Update by deleting old row and inserting updated one (same booking_id)
     public void update(Reservation res) {
-        String sql = "UPDATE reservations SET guest_name=?, contact_number=?, visit_datetime=?, pax=?, status=?, exit_time=? WHERE booking_id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, res.getGuestName());
-            pstmt.setString(2, res.getContactNumber());
-            pstmt.setString(3, res.getVisitDateTime().format(dtf));
-            pstmt.setInt(4, res.getPax());
-            pstmt.setString(5, res.getStatus());
-            pstmt.setString(6, res.getExitTime() != null ? res.getExitTime().format(dtf) : null);
-            pstmt.setString(7, res.getBookingId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        delete(res.getBookingId());
+        save(res);
     }
 
     public void cancel(String bookingId) {
-        String sql = "UPDATE reservations SET status='Cancelled' WHERE booking_id=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, bookingId);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Reservation old = findById(bookingId);
+        if (old != null) {
+            Reservation cancelled = old.withStatus("Cancelled").withPaymentStatus("Refunded");
+            update(cancelled);
         }
     }
 
@@ -104,9 +77,7 @@ public class ReservationRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, bookingId);
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public int getLastBookingNumber() {
@@ -116,17 +87,13 @@ public class ReservationRepository {
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 String lastId = rs.getString("booking_id");
-                // Expected format: MG2026_01
-                String numPart = lastId.substring(lastId.indexOf('_') + 1);
-                return Integer.parseInt(numPart);
+                return Integer.parseInt(lastId.substring(lastId.indexOf('_') + 1));
             }
-        } catch (SQLException e) {
-            // Table may be empty
-        }
+        } catch (SQLException e) {}
         return 0;
     }
 
-    private Reservation mapRowToReservation(ResultSet rs) throws SQLException {
+    private Reservation mapRow(ResultSet rs) throws SQLException {
         String bookingId = rs.getString("booking_id");
         String guestName = rs.getString("guest_name");
         String contact = rs.getString("contact_number");
@@ -135,7 +102,8 @@ public class ReservationRepository {
         int pax = rs.getInt("pax");
         String status = rs.getString("status");
         String exitStr = rs.getString("exit_time");
-        LocalDateTime exitTime = exitStr != null ? LocalDateTime.parse(exitStr, dtf) : null;
+        LocalDateTime exit = exitStr != null ? LocalDateTime.parse(exitStr, dtf) : null;
+        String paymentStatus = rs.getString("payment_status");
 
         return new Reservation.Builder()
                 .bookingId(bookingId)
@@ -144,7 +112,8 @@ public class ReservationRepository {
                 .visitDateTime(visit)
                 .pax(pax)
                 .status(status)
-                .exitTime(exitTime)
+                .exitTime(exit)
+                .paymentStatus(paymentStatus != null ? paymentStatus : "Pending")
                 .build();
     }
 }
