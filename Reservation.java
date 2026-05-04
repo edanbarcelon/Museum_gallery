@@ -1,6 +1,17 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+<<<<<<< HEAD
+public class Reservation {
+    private String bookingId;
+    private String guestName;
+    private String contactNumber;
+    private LocalDateTime visitDateTime;
+    private int pax;
+    private String status;
+    private LocalDateTime exitTime;
+    private String paymentStatus;
+=======
 public final class Reservation {
     private final String bookingId;
     private final String guestName;
@@ -11,6 +22,7 @@ public final class Reservation {
     private final LocalDateTime exitTime;
 12
 
+>>>>>>> origin/main
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
 
     private Reservation(Builder builder) {
@@ -21,7 +33,11 @@ public final class Reservation {
         this.pax = builder.pax;
         this.status = builder.status;
         this.exitTime = builder.exitTime;
+<<<<<<< HEAD
+        this.paymentStatus = builder.paymentStatus;
+=======
 24
+>>>>>>> origin/main
     }
 
     // Only getters – no setters (immutable)
@@ -31,6 +47,19 @@ public final class Reservation {
     public LocalDateTime getVisitDateTime() { return visitDateTime; }
     public int getPax() { return pax; }
     public String getStatus() { return status; }
+<<<<<<< HEAD
+    public LocalDateTime getExitTime() { return exitTime; }
+    public String getPaymentStatus() { return paymentStatus; }
+
+    public void setBookingId(String bookingId) { this.bookingId = bookingId; }
+    public void setGuestName(String guestName) { this.guestName = guestName; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
+    public void setVisitDateTime(LocalDateTime visitDateTime) { this.visitDateTime = visitDateTime; }
+    public void setPax(int pax) { this.pax = pax; }
+    public void setStatus(String status) { this.status = status; }
+    public void setExitTime(LocalDateTime exitTime) { this.exitTime = exitTime; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+=======
 34
     public String getPaymentStatus() { return paymentStatus; }
 
@@ -87,6 +116,7 @@ public final class Reservation {
 87
                 .build();
     }
+>>>>>>> origin/main
 
     @Override
     public String toString() {
@@ -95,8 +125,13 @@ public final class Reservation {
                "\nContact: " + contactNumber +
                "\nVisit: " + (visitDateTime != null ? visitDateTime.format(formatter) : "N/A") +
                "\nPax: " + pax +
+<<<<<<< HEAD
+               "\nStatus: " + status;
+               "\nPayment: " + paymentStatus;
+=======
                "\nStatus: " + status +
 99
+>>>>>>> origin/main
     }
 
     // Builder – declared static final to prevent subclassing
@@ -110,6 +145,45 @@ public final class Reservation {
         private LocalDateTime exitTime = null;
         private String paymentStatus = "Pending";
 
+<<<<<<< HEAD
+        public Builder bookingId(String bookingId) {
+            this.bookingId = bookingId;
+            return this;
+        }
+
+        public Builder guestName(String guestName) {
+            this.guestName = guestName;
+            return this;
+        }
+
+        public Builder contactNumber(String contactNumber) {
+            this.contactNumber = contactNumber;
+            return this;
+        }
+
+        public Builder visitDateTime(LocalDateTime visitDateTime) {
+            this.visitDateTime = visitDateTime;
+            return this;
+        }
+
+        public Builder pax(int pax) {
+            this.pax = pax;
+            return this;
+        }
+
+        public Builder status(String status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder exitTime(LocalDateTime exitTime) {
+            this.exitTime = exitTime;
+            return this;
+        }
+        public Builder paymentStatus(String paymentStatus) {   
+            this.paymentStatus = paymentStatus;
+            return this; }
+=======
         public Builder bookingId(String bookingId) { this.bookingId = bookingId; return this; }
         public Builder guestName(String guestName) { this.guestName = guestName; return this; }
         public Builder contactNumber(String contactNumber) { this.contactNumber = contactNumber; return this; }
@@ -118,6 +192,7 @@ public final class Reservation {
         public Builder status(String status) { this.status = status; return this; }
         public Builder exitTime(LocalDateTime exitTime) { this.exitTime = exitTime; return this; }
         public Builder paymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; return this; }
+>>>>>>> origin/main
 
         public Reservation build() {
             if (bookingId == null || bookingId.isEmpty())
